@@ -29,7 +29,7 @@ def not_found(error):
     return make_response(jsonify( { 'error': 'Nao encontrado' } ), 404) #se nao existir o endpoint
 
 def make_public_task(task):
-#retorna cria / atualiza tarefa
+#retorna tarefa
     new_task = {}
 
     for field in task:
@@ -97,6 +97,7 @@ def update_task(task_id):
     task[0]['status'] = request.json.get('status', task[0]['status'])
 
     return jsonify( { 'task': make_public_task(task[0]) } )
-    
+#Comentário final: poderia implemetar um sessão do lado do cliente para tornar mais Restful
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug = True)
