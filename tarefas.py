@@ -29,7 +29,7 @@ def not_found(error):
     return make_response(jsonify( { 'error': 'Nao encontrado' } ), 404) #se nao existir o endpoint
 
 def make_public_task(task):
-#cria / atualiza tarefa
+#retorna cria / atualiza tarefa
     new_task = {}
 
     for field in task:
