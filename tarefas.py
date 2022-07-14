@@ -7,13 +7,13 @@ tasks = [
         'id': 1,
         'tarefa': 'Comprar cafe da manha',
         'descricao': 'Leite, pao', 
-        'done': False #Aqui escolhe se terminou ou nao a tarefas
+        'status': False #Aqui escolhe se terminou ou nao a tarefas
     },
     {
         'id': 2,
         'tarefa': 'Almoco',
         'descricao': 'Comprar Lasagna', 
-        'done': False 
+        'status': False
     }
 ]
 
@@ -69,7 +69,7 @@ def create_task():
         'id': tasks[-1]['id'] + 1,
         'tarefa': request.json['tarefa'],
         'descricao': request.json.get('descricao', ""),
-        'done': False
+        'status': False
     }
 
     tasks.append(task)
@@ -81,41 +81,20 @@ def create_task():
 def update_task(task_id):
 
     task = list(filter(lambda t: t['id'] == task_id, tasks)) #filtra a tarefa
+    #Etapas de validação do PUT:
     if len(task) == 0: #Se o cliente nao enviou nenhum dado, não tem como atualizar
         abort(404)
     if not request.json: #Se não é jason, interrompa, só json
         #abort(400)
         return {task}
-    if 'tarefa' in request.json and type(request.json['tarefa']) != unicode:
-        abort(400)
-    if 'descricao' in request.json and type(request.json['descricao']) is not unicode:
-        abort(400)
-    if 'done' in request.json and type(request.json['done']) is not bool:
+    if 'status' in request.json and isinstance(request.json['status'], bool) : #Se nao for booleano...
         abort(400)
      
     #atualiza a tarefa:
     task[0]['id'] = request.json.get('id', task[0]['id'])
     task[0]['tarefa'] = request.json.get('tarefa', task[0]['tarefa'])
     task[0]['descricao'] = request.json.get('descricao', task[0]['descricao'])
-    task[0]['done'] = request.json.get('done', task[0]['done'])
-
-    #return jsonify( task[0] )
-    # return jsonify(task)
-    # if len(task) == 0:
-    #     abort(404)
-    # if not request.json:
-    #     #abort(400)
-    #     return {task}
-    # if 'tarefa' in request.json and type(request.json['tarefa']) != unicode:
-    #     abort(400)
-    # if 'descricao' in request.json and type(request.json['descricao']) is not unicode:
-    #     abort(400)
-    # if 'done' in request.json and type(request.json['done']) is not bool:
-    #     abort(400)
-    # task[0]['id'] = request.json.get('id', task[0]['id'])
-    # task[0]['tarefa'] = request.json.get('tarefa', task[0]['tarefa'])
-    # task[0]['descricao'] = request.json.get('descricao', task[0]['descricao'])
-    # task[0]['done'] = request.json.get('done', task[0]['done'])
+    task[0]['status'] = request.json.get('status', task[0]['status'])
 
     return jsonify( { 'task': make_public_task(task[0]) } )
     
