@@ -7,13 +7,13 @@ tasks = [
         'id': 1,
         'tarefa': 'Comprar cafe da manha',
         'descricao': 'Leite, pao', 
-        'done': False
+        'done': False #Aqui escolhe se terminou ou nao a tarefas
     },
     {
         'id': 2,
         'tarefa': 'Almoco',
         'descricao': 'Comprar Lasagna', 
-        'done': False
+        'done': False 
     }
 ]
 
@@ -26,17 +26,17 @@ def not_found(error):
 @app.errorhandler(404)
 def not_found(error):
 
-    return make_response(jsonify( { 'error': 'Nao encontrado' } ), 404)
+    return make_response(jsonify( { 'error': 'Nao encontrado' } ), 404) #se nao existir o endpoint
 
 def make_public_task(task):
-
+#cria / atualiza tarefa
     new_task = {}
 
     for field in task:
         if field == 'id':
             new_task['uri'] = url_for('get_task', task_id = task['id'], _external = True)
         else:
-            new_task[field] = task[field]
+            new_task[field] = task[field] #atualiza
 
     return new_task
 
@@ -77,29 +77,47 @@ def create_task():
     return jsonify( { 'task': make_public_task(task) } ), 201
 
 @app.route('/tarefas/<int:task_id>', methods = ['PUT'])
-
+#função abaixo atualiza as tarefas
 def update_task(task_id):
 
-    return {"msg": "Vc quer atualizar a tarefa"}
+    task = list(filter(lambda t: t['id'] == task_id, tasks)) #filtra a tarefa
+    if len(task) == 0: #Se o cliente nao enviou nenhum dado, não tem como atualizar
+        abort(404)
+    if not request.json: #Se não é jason, interrompa, só json
+        #abort(400)
+        return {task}
+    if 'tarefa' in request.json and type(request.json['tarefa']) != unicode:
+        abort(400)
+    if 'descricao' in request.json and type(request.json['descricao']) is not unicode:
+        abort(400)
+    if 'done' in request.json and type(request.json['done']) is not bool:
+        abort(400)
+     
+    #atualiza a tarefa:
+    task[0]['id'] = request.json.get('id', task[0]['id'])
+    task[0]['tarefa'] = request.json.get('tarefa', task[0]['tarefa'])
+    task[0]['descricao'] = request.json.get('descricao', task[0]['descricao'])
+    task[0]['done'] = request.json.get('done', task[0]['done'])
 
-    # task = filter(lambda t: t['id'] == task_id, tasks)
-
+    #return jsonify( task[0] )
+    # return jsonify(task)
     # if len(task) == 0:
     #     abort(404)
     # if not request.json:
+    #     #abort(400)
+    #     return {task}
+    # if 'tarefa' in request.json and type(request.json['tarefa']) != unicode:
     #     abort(400)
-    # # if 'tarefa' in request.json and type(request.json['tarefa']) != unicode:
-    # #     abort(400)
-    # # if 'descricao' in request.json and type(request.json['descricao']) is not unicode:
-    # #     abort(400)
-    # # if 'done' in request.json and type(request.json['done']) is not bool:
-    # #     abort(400)
-
+    # if 'descricao' in request.json and type(request.json['descricao']) is not unicode:
+    #     abort(400)
+    # if 'done' in request.json and type(request.json['done']) is not bool:
+    #     abort(400)
+    # task[0]['id'] = request.json.get('id', task[0]['id'])
     # task[0]['tarefa'] = request.json.get('tarefa', task[0]['tarefa'])
     # task[0]['descricao'] = request.json.get('descricao', task[0]['descricao'])
     # task[0]['done'] = request.json.get('done', task[0]['done'])
 
-    # return jsonify( { 'task': make_public_task(task[0]) } )
+    return jsonify( { 'task': make_public_task(task[0]) } )
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug = True)
